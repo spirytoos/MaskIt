@@ -7,16 +7,57 @@ http://spirytoos.blogspot.com
 
 Copyright (c) 2013 Tomasz Egiert
 
-http://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt
+https://raw.github.com/spirytoos/xperiments/master/LICENSE.md
 
-Project site: http://razorjack.net/quicksand
-Github site: http://github.com/razorjack/quicksand
+Project site: http://tomaszegiert.seowebsolutions.com.au/maskit/index.html
+Github site: https://github.com/spirytoos/xperiments/
 
  */
+ 
+ 
+ 
+/* implementation of indexOf as this is not natively implemented in IE's
+https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/indexOf#Compatibility
+*/
+
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+        "use strict";
+        if (this == null) {
+            throw new TypeError();
+        }
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+        var n = 0;
+        if (arguments.length > 1) {
+            n = Number(arguments[1]);
+            if (n != n) { // shortcut for verifying if it's NaN
+                n = 0;
+            } else if (n != 0 && n != Infinity && n != -Infinity) {
+                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+            }
+        }
+        if (n >= len) {
+            return -1;
+        }
+        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+        for (; k < len; k++) {
+            if (k in t && t[k] === searchElement) {
+                return k;
+            }
+        }
+        return -1;
+    }
+}
+
 (function($)
 {
 
-  $.fn.maskFields=function(pattern,options)
+
+	$.fn.maskFields=function(pattern,options)
 	{
 		/* in here before we start we grab pattern as provided by user and generate array of regular expressions
 		which we can use later to compare one by one with what user types in. Later on each key press we will check
@@ -27,13 +68,14 @@ Github site: http://github.com/razorjack/quicksand
 		var settings= $.extend({
 		
 			"placeholderChar" : "_",
-			"alwaysDisplayPlaceholder" : false
+			"alwaysDisplayPlaceholder" : true
 		}, options);
 							
 		// keep track from which character letters are not compulsory so in a pattern "(dd) dddd ?dddd a"
 		// anything following ? will be optional
 		
-		var optionalFrom=(pattern.indexOf("?")==-1 ? pattern.length : pattern.indexOf("?"));
+		var optionalFrom=null;
+		
 		
 		// contains array of reg.exes
 		settings.pattern=translatePattern(pattern);
@@ -63,25 +105,61 @@ Github site: http://github.com/razorjack/quicksand
 			// function translates pattern user provided e.g. "(dd) dddd dddd a" into array of regular expressions
 			// this array represents single characters allowed in a field. Later we will be simply comparing what
 			// user types in in caret position with corresponding index content of this array 
-			
-			// we need to remove "optional" symbol as we dont want it to be diplsyed in a field
-			
-			pattern=pattern.replace("?","");
-		
+						
 			var p=pattern.split("");
 			
+			/* it might happen with label like "dddd dddd dddd dddd ?(optional) ddd" that "a" in optional will be replaced into placehodler where user can type in. In
+			such case we need to mark that "a" is actual label only to be displayed and user should specify pattern as "dddd dddd dddd dddd ?(option\al) ddd" meaning
+			that a is only label and should not be editeable */
+			
+			var nextIsLabel=false;	
+			
 			for(i=0;i<p.length;i++)
-			{								
+			{	
 				switch(p[i])
 				{
+					case "?": // we need to remove "optional" symbol as we dont want it to be diplsyed in a field
+						if(nextIsLabel) 
+						{
+							p[i]="sEpArAtOr";
+							nextIsLabel=false;
+						}
+						else
+						{
+							p[i]=null;
+						}
+						break;
 					case "*":
-						p[i]="[a-zA-Z1-9]";
+						if(!nextIsLabel)
+							p[i]="[a-zA-Z1-9]";
+						else // if it should be treated as label only make it into separator
+							p[i]="sEpArAtOr";
+						nextIsLabel=false;
 						break;
 					case "d":
-						p[i]="[1-9]";
+						if(!nextIsLabel) p[i]="[1-9]";
+						else // if it should be treated as label only make it into separator
+							p[i]="sEpArAtOr";
+						nextIsLabel=false;
 						break;
 					case "a":
-						p[i]="[a-z]";
+						if(!nextIsLabel) p[i]="[a-zA-Z]";
+						else // if it should be treated as label only make it into separator
+							p[i]="sEpArAtOr";
+						nextIsLabel=false;
+						break;
+					case '^': // meaning next character if its "a" or "d" is actual label and shouldnt be replaced as placeholder where user can type in. Also if user types in as pattern "dd^^dd^^dd" we want double "^" to be displayed as single as label only. So its escape character as well as wehn used as "^^" its displays "^"
+						if(nextIsLabel) 
+						{
+							p[i]='sEpArAtOr';
+							nextIsLabel=false;
+						}
+						else
+						{
+							// if next is label then remove "^" sign as it should not be displayed and with null mark it for removal later so translated pattern indexes will match with placeholder indexes
+							p[i]=null;
+							nextIsLabel=true;
+						}
 						break;
 					default:
 					{
@@ -107,34 +185,70 @@ Github site: http://github.com/razorjack/quicksand
 				
 			}
 			
+			// remove all nulls as these mark escape "\" signs
+			
+			while(p.indexOf(null)!=-1)
+			{
+				p.splice(p.indexOf(null),1);
+			}
+			
 			return p;
 		}
 		
 		function generatePlaceholder(pattern)
-		{							
-			// we need to remove "optional" symbol as we dont want it to be diplsyed in a field
-			
-			pattern=pattern.replace("?","");
-		
+		{		
 			// this function generates placeholder to display in input field so replaces places where user can input characters with 
 			// underscore or whatever else user specifies to be used as placeholder
 			
 			var p=pattern.split("");
 			
+			/* it might happen with label like "dddd dddd dddd dddd ?(optional) ddd" that "a" in optional will be replaced into placehodler where user can type in. In
+			such case we need to mark that "a" is actual label only to be displayed and user should specify pattern as "dddd dddd dddd dddd ?(option\al) ddd" meaning
+			that a is only label and should not be editeable */
+			
+			var nextIsLabel=false;
+				
 			for(i=0;i<p.length;i++)
 			{
+				
 				switch(p[i])
 				{
 					case "?": // we need to remove "optional" symbol as we dont want it to be diplsyed in a field
+						if(nextIsLabel) 
+						{
+							p[i]="?";
+							nextIsLabel=false;
+						}
+						else
+						{
+							// also if not marked already, mark all after this character as optional
+							if(optionalFrom==null) optionalFrom=i;
+							p[i]=null;
+						}
 						break;
 					case "*":
-						p[i]=settings.placeholderChar;
+						if(!nextIsLabel) p[i]=settings.placeholderChar;
+						nextIsLabel=false;
 						break;
 					case "d":
-						p[i]=settings.placeholderChar;
+						if(!nextIsLabel) p[i]=settings.placeholderChar;
+						nextIsLabel=false;
 						break;
 					case "a":
-						p[i]=settings.placeholderChar;
+						if(!nextIsLabel) p[i]=settings.placeholderChar;
+						nextIsLabel=false;
+						break;
+					case '^': // meaning next character if its "a" or "d" is actual label and shouldnt be replaced as placeholder where user can type in. Also if user types in as pattern "dd^^dd^^dd" we want double "^" to be displayed as single as label only. So its escape character as well as wehn used as "^^" its displays "^"
+						if(nextIsLabel) 
+						{
+							nextIsLabel=false;
+						}
+						else
+						{
+							// if next is label then remove "\" sign as it should not be displayed and with null mark it for removal later so translated pattern indexes will match with placeholder indexes
+							p[i]=null;
+							nextIsLabel=true;
+						}
 						break;
 					default:
 					{
@@ -152,6 +266,15 @@ Github site: http://github.com/razorjack/quicksand
 					}
 				}
 			}
+			
+			// remove all nulls as these mark escape "\" signs
+			
+			while(p.indexOf(null)!=-1)
+			{
+				p.splice(p.indexOf(null),1);
+			}
+			
+			if(optionalFrom==null) optionalFrom=p.length
 			
 			return p.join("");
 		}
@@ -185,31 +308,8 @@ Github site: http://github.com/razorjack/quicksand
 		  return (iCaretPos);
 		}
 
-		
-		function setMasking(i,c,pos)
-		{
-			//  initially display empty placeholder only as nothing is typed in
-			
-			if(c==undefined)
-			{
-				$(i).val(generatePlaceholder(pattern));
-				return;
-			}
-			else
-			{
-				var currentValue=$(i).val();
-				
-				currentValue=currentValue.split("");
-				
-				currentValue[pos]=c;
-				
-				currentValue=currentValue.join("");
-				
-				$(i).val(currentValue);
-			}
-		}
 	
-		function showSelection(el) {
+		function showSelection(el) { // I should really rename this function ;) I got this from stackoverflow.com. Not sure the exact link but I just copy pasted this function and cannot take credit for this function code
 		
 			var start = 0, end = 0, normalizedValue, range,
 				textInputRange, len, endRange;
@@ -252,16 +352,13 @@ Github site: http://github.com/razorjack/quicksand
 			
 			selectionStart=start;
 			selectionEnd=end;							
-			
-			console.log("start:"+selectionStart);
-			console.log("end:"+selectionEnd);
-			
+						
 			// check if user actually selected text or only clicked in which case there will be no selection
 			if(start==end) selectionStart=null;
 			
 		}
 
-		function setCaretPosition(t,pos)
+		function setCaretPosition(t,pos) // also somewhere frm stackoverflow.com, simple enough but copied/pasted only
 		{
 			if(t.setSelectionRange)
 				t.setSelectionRange(pos,pos);
@@ -367,36 +464,6 @@ Github site: http://github.com/razorjack/quicksand
 			$(i).val(tempPlaceholder.join(""));
 		}
 		
-		function displayContent_NOTUSED(i)
-		{
-			/* displays typed in content only, without placeholder */
-			
-			var tempPlaceholder=placeholder.split("");
-			
-			// loop over whatever is typed in and generate placeholder with typed in content so it can be diaplyed in a field
-			
-			for(a=0;a<tempPlaceholder.length;a++)
-			{
-				// here we display only whats already typed in, otherwise placeholder chars we replace with spaces so
-				// only content will be visible but gaps will be still there
-				
-				if(typedIn[a]!=undefined)
-					tempPlaceholder[a]=typedIn[a];
-				else 
-				{
-					// if its placeholder character where user can type in then do not display
-					// otherwise with brackets and such display all
-					if(tempPlaceholder[a]==settings.placeholderChar)
-						tempPlaceholder[a]=" ";
-				}
-			}
-			
-			// fill in the field with placeholder and data already typed in
-			
-			$(i).val(tempPlaceholder.join(""));
-		}
-		
-		
 		function displayEnteredContent(i)
 		{
 			/* displays typed in content only */
@@ -500,7 +567,10 @@ Github site: http://github.com/razorjack/quicksand
 										
 			// as nothing is typed in and we need to show empty masking only
 			
-			displayContentAndPlaceholder(this);
+			if(settings.alwaysDisplayPlaceholder) 
+				displayContentAndPlaceholder(this);
+			else // reset field as might have rubbish from previous refresh
+				$(this).val("");
 			
 			$(this).bind("focus",function(e) {
 			
@@ -560,6 +630,12 @@ Github site: http://github.com/razorjack/quicksand
 			
 			$(this).bind("keydown",function(e) {
 			
+				// callback
+				
+				if(settings.onKeyDown!=undefined) 
+					if(!settings.onKeyDown(e,this))
+						return false;
+						
 				// get caret position
 				
 				var caretPosition=doGetCaretPosition(this);
@@ -569,8 +645,6 @@ Github site: http://github.com/razorjack/quicksand
 				if(charCode==8)
 				{
 					// backspace button so delete previous character and move cursor one back
-						
-					//setMasking(this,settings.placeholderChar, caretPosition-skipToTheLeft(caretPosition));
 					
 					// check if user selected (highlighted) more characters with mouse or something
 					
@@ -606,8 +680,6 @@ Github site: http://github.com/razorjack/quicksand
 				{
 					//delete button so delete current character
 					
-					//setMasking(this,"_", caretPosition);
-					
 					// check if user selected (highlighted) more characters with mouse or something
 					
 					if(selectionStart!=null)
@@ -638,8 +710,8 @@ Github site: http://github.com/razorjack/quicksand
 				{
 					// check if shift+right arrow is pressed 
 					// this is used to imitate selecting via keyboard
-					
-					if(window.event.shiftKey)
+				
+					if(e.shiftKey)
 					{
 						showSelection(this);
 						
@@ -659,7 +731,7 @@ Github site: http://github.com/razorjack/quicksand
 				}
 				else if(charCode==39)
 				{
-					if(window.event.shiftKey)
+					if(e.shiftKey)
 					{
 						showSelection(this);
 						
@@ -684,10 +756,16 @@ Github site: http://github.com/razorjack/quicksand
 			
 			$(this).bind("keypress",function(e) {
 				
-				if(charCode==37)
+				// for firefox we need to check here if shift is pressed and if so return otherwise the damn thing gets confused (even IE gets ti right!!!)
+				if(e.shiftKey)
 				{
-					return;
-				}
+					if(e.keyCode==39 || e.keyCode==37)
+						return;
+					else if(e.keyCode==9) // for tab key + shift to jump to previous field
+						return true;
+				} 
+				else if(e.keyCode==9) // for tab key to jump to next field
+						return true;
 				
 				// get caret position and pattern for this position
 				
@@ -715,11 +793,11 @@ Github site: http://github.com/razorjack/quicksand
 				
 				var patt1=new RegExp(pattern);
 				
+				// check if it matches pattern, if not simply ignore
+				
 				// now get the keycode for whatever user typed in, of course IE has different idea of how it should be done and we need to check existence of "which"
 				
 				var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
-				
-				// check if it matches pattern, if not simply ignore
 				
 				var characterTyped=String.fromCharCode(charCode);
 				
@@ -729,8 +807,6 @@ Github site: http://github.com/razorjack/quicksand
 				{
 					// otherwise enter what user tyed in and adjust masking so it displays properly so dosent move all the masking characers to the right as new character is typed in
 					
-					//setMasking(this,characterTyped, caretPosition);
-					
 					updateField(this,characterTyped, caretPosition);
 					
 					// move cursor to next position taking care of possible following separatoors like slashes, colons etc
@@ -738,8 +814,19 @@ Github site: http://github.com/razorjack/quicksand
 					
 					setCaretPosition(this,caretPosition+skipToTheRight(caretPosition));
 					
+					// now check if field is correctly filled in
+					// check if all compulsory characters were entered and if not clear field
+					
+					if(correctlyFilledIn(this))
+					{
+						//callback
+						
+						if(settings.onCompleted!=undefined) settings.onCompleted(e,this);
+					}
+					
 					return false;
 				}
+				
 			});
 			
 		});
