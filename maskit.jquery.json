@@ -1,0 +1,27 @@
+{
+    "name": "maskit",
+    "title": "jQuery MaskIt",
+    "description": "jQuery plugin for masking input fields.",
+    "keywords": [
+        "mask",
+        "input",
+        "validate"
+    ],
+    "version": "1.0.0",
+    "author": {
+        "name": "Tomasz Egiert",
+        "url": "http://spirytoos.blogspot.com"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://raw.github.com/spirytoos/MaskIt/master/LICENSE.md"
+        }
+    ],
+    "homepage": "http://spirytoos.blogspot.com.au/p/blog-page.html",
+    "docs": "http://tomaszegiert.seowebsolutions.com.au/maskit/index.html",
+    "download": "http://tomaszegiert.seowebsolutions.com.au/maskit/index.html",
+    "dependencies": {
+        "jquery": ">=1.5"
+    }
+}
