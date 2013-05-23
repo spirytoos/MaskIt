@@ -3,14 +3,14 @@
 MaskIt v1.0
 
 jQuery Input masking plugin.
-http://spirytoos.blogspot.com
+http://spirytoos.blogspot.com.au/
 
 Copyright (c) 2013 Tomasz Egiert
 
-https://raw.github.com/spirytoos/xperiments/master/LICENSE.md
+https://github.com/spirytoos/maskit/blob/master/LICENSE.md
 
 Project site: http://tomaszegiert.seowebsolutions.com.au/maskit/index.html
-Github site: https://github.com/spirytoos/xperiments/
+Github site: https://github.com/spirytoos
 
  */
  
