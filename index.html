@@ -1,0 +1,419 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>MaskIt v1.0 - jQuery Plugin</title>
+		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/jquery.maskit1.0.min.js"></script>
+		<style>
+		
+			body 
+			{
+				padding: 10px;
+				background-color: #fff;
+				font-family: arial;
+				color: #777;
+				font-size: 12px;
+				width: 500px;
+			}
+			
+			div
+			{
+				overflow: auto;
+				border-bottom: 1px dotted #777;
+				padding: 20px 0 15px;
+			}
+			
+			label
+			{
+				display: block;
+			}
+			label span
+			{
+				position: relative;
+				top: 4px;
+				display: block;
+			}
+			
+			p code
+			{
+				margin: 0;
+				padding: 16px 0;
+				color: rgb(28, 141, 69);
+			}
+			
+			
+			div code
+			{
+				float: left;
+				margin: 0;
+				padding: 16px 0;
+				color: rgb(28, 141, 69);
+			}
+			
+			input
+			{
+				font-size: 12px;
+				float: left;
+				color: #777;
+				border: 0;
+				background: #ddd;
+				padding: 3px 4px;
+				margin-top: 14px;
+				margin-right: 15px;
+				width: 140px;
+			}
+			
+			textarea
+			{
+				font-size: 12px;
+				float: left;
+				color: #777;
+				border: 0;
+				background: #ddd;
+				padding: 3px 4px;
+				margin-top: 14px;
+				width: 340px;
+				height: 150px;
+				font-family: arial;
+			}
+			
+			#cc2 
+			{
+				width: 200px;
+			}
+			
+			#sep2,#sep3, #sep4
+			{
+				width: 200px;
+			}
+		
+		</style>
+
+		<script>
+
+			$(document).ready(function()
+			{
+				
+				$("#withPh").maskFields("dd/dd/dddd" , { "alwaysDisplayPlaceholder": false });
+				$("#dash").maskFields("dd/dd/dddd", { "placeholderChar" : "-"});
+				
+				$("#date1").maskFields("dd/dd/dddd");
+				$("#date2").maskFields("dd/aaa/dddd");
+				$("#date3").maskFields("dd/bd/20rd", {"specialChars" : { "b" : "[01]","r" : "[12]" }});
+				
+				$("#phone1").maskFields("(dd) dddd-dddd");
+				$("#phone2").maskFields("(dd) dddd-dddd ext ddd");
+				$("#phone3").maskFields("(dd) dddd-dddd ?ext ddd");
+				
+				$("#time1").maskFields("dd:dd:dd");
+				$("#time2").maskFields("dd:dd?:dd");
+				$("#time3").maskFields("dd:dd?:dd");
+				$("#time4").maskFields("hd:ed?:ed lm",{"specialChars" : { "h" : "[012]","e" : "[0-5]","l" : "[ap]","m" : "m" }});
+				
+				$("#hex1").maskFields("#hhhhhh",{"specialChars" : { "h" : "[0-9a-f]" }});
+				$("#hex2").maskFields("#hhh?hhh",{"specialChars" : { "h" : "[0-9a-f]" }});
+				
+				$("#money1").maskFields("$dd.dd");
+				$("#money2").maskFields("$dd?.dd");
+				$("#money3").maskFields("$vd?.9c",{"specialChars" : { "v" : "[23]","c" : "[59]" }});
+				
+				$("#cc1").maskFields("dddd dddd dddd dddd");
+				$("#cc2").maskFields("dddd dddd dddd dddd ?(option^al) ddd");
+				
+				$("#sep1").maskFields("dd\\dd\\dd");
+				$("#sep2").maskFields("Enter ^d^ay dd, month dd, ye^ar dddd");
+				$("#sep3").maskFields("Enter day dd, month dd?, year dddd");
+					
+				
+				$("#sep4").maskFields("Enter ^d^ay dd, month dd?, ye^ar dddd");
+				
+				$("#sep5").maskFields("?ddd aaa *^**");
+				
+				
+				$("#callback1").maskFields("dd/dd/20dd", {"onCompleted": function(e,t) { alert("e.keyCode:"+e.keyCode+"   Entered: "+$(t).val()); }});
+				
+				$("#callback2").maskFields("bd/dd/20dd", {"specialChars" : { "b" : "[01]" }, "onKeyDown": function(e,t) { return false; }});
+				
+				
+			//	$("#ta").maskFields("?De^ar aaaaaaaa,\n\nMy n^ame is aaaaaaaa ^an^d I'm dd ye^ars ol^d. Ple^ase cont^act me ^at ^anytime th^at is convenient to you.\n\nBest Reg^ar^ds,\naaaaaaaaaa");
+			});
+			
+
+		</script>
+		
+
+	</head>
+	<body>
+
+	<h1>MaskIt v1.0 - jQuery plugin</h1>
+	
+	<p>I've created this plugin for fun and simply to sharpen my jQuery plugin development skills. Feel free to use it in your projects, modify, change and do what you will, as long as you keep the copyright note at the top of plugin code. Also if you do something cool with it I would appreciate if you let me know. I would love to put link to it on this site then.</p>
+	
+	
+	<h2>Compatibility</h2>
+	
+	<p>I tested it briefly with latest Firefox, Chrome, IE7/8/9 on Windows 7, and iPad3 with IOS6. If you find any bugs however, please do let me know on via my blog site <a href="http://spirytoos.blogspot.com">http://spirytoos.blogspot.com</a>.
+	
+	<h2>How to use?</h2>
+	<p>Download js file</p>
+
+	<p><a href="https://github.com/spirytoos/MaskIt/blob/master/jquery.maskit1.0.js">jquery.maskit1.0.js (with comments if you dare, ~22kb)</a></p>
+	<p><a href="https://github.com/spirytoos/MaskIt/blob/master/jquery.maskit1.0.min.js">jquery.maskit1.0.min.js (compressed, ~5.5kb)</a></p>
+
+	<p>
+	
+	<a href="http://jquery.com/download/">Download jQuery</a> (or link to it directly) before using plugin. Then link to plugin, sample code below:
+	
+	<code>
+		<br/><br/>
+		&lt;script type="text/javascript" src="jquery.min.js"&gt;&lt;/script&gt;<br/>
+		&lt;script src="jquery.maskit1.0.min.js"&gt;&lt;/script&gt;</code>
+		
+	</p>
+
+	<p>
+	When specifying special characters MaskIt uses regular expressions (regex., see examples below). Regex can be complicated and very powerful, however if you not familiar with it I would suggest to Google it as there are heaps of resources on the subject. For those who do not know how to specify regex patterns, few very simple examples below:
+		<br/><br/>
+	<code>[a-c]</code> - matches any of these characters: abcd<br/>
+	<code>[abc]</code> - matches any of these characters:  abc<br/>
+	<code>[a-cA-Z]</code> - matches any of these characters: abc and ABCDE....Z all the way till Z (uppercase)<br/>
+	<code>[1-5o-s]</code> - matches any of these characters: 12345 as well as matches lowercase opqrs
+	
+	</p>
+	
+	<h2>Examples</h2>
+	
+	<div style="padding-top: 0;">
+	
+		<label><span>Date dd/mm/yyyy - with default settings. Placeholder stays visible even when field is not in focus. If field is incomplete, all content will be erased and this is default behaviour</span>	<input id="date1" type="text" placeholder /></label>
+		
+		<code>$("#date1").maskFields("dd/dd/dddd");
+				</code>
+	
+	</div>
+
+	<div>
+	
+		<label><span>Date dd/mm/yyyy - set with additional option "alwaysDisplayPlaceholder". This makes placeholder dissapear when field is incomplete and not in focus. </span>	<input id="withPh" type="text" /></label>
+		
+		<code>$("#withPh").maskFields("dd/dd/dddd" , { "alwaysDisplayPlaceholder": false });
+				</code>
+	
+	</div>
+
+	
+	<div>
+	
+		<label><span>Date dd/mm/yyyy - by default editeable locations in a field are marked with "_". To change it simply provide additional setting as below. Example replaces "_" with dash symbol "-".</span>	<input id="dash" type="text" placeholder /></label>
+		
+		<code>$("#dash").maskFields("dd/dd/dddd", { "placeholderChar" : "-"});
+				</code>
+	
+	</div>
+	
+	
+	<div>
+	
+		<label><span>Date dd/aaa/yyyy - month is provided with alphas e.g. "jan", "feb", "nov" etc. rather then number only</span>	<input id="date2" type="text" /></label>
+		
+		<code>$("#date2").maskFields("dd/aaa/dddd");</code>
+	
+	</div>
+
+	<div>
+	
+		<label><span>Date dd/mm/yyyy - similar to first example but month can have only "0" or "1" as first digit, and year has first two digits predefined as "20", and 3rd digit can be only "1" or "2" so it limits years user can enter to 2010-2029.</span>	<input id="date3" type="text" /></label>
+		
+		<code>$("#date3").maskFields("dd/bd/20rd", {"specialChars" : { "b" : "[01]","r" : "[12]" }});</code>
+	
+	</div>
+	
+
+	
+	<div>
+	
+		<label><span>Phone number (dd) dddd-dddd</span>	<input id="phone1" type="text" /></label>
+		
+		<code>$("#phone1").maskFields("(dd) dddd-dddd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Phone number (dd) dddd-dddd ext ddd - with three digit extension</span>	<input id="phone2" type="text" /></label>
+		
+		<code>$("#phone2").maskFields("(dd) dddd-dddd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Phone number (dd) dddd-dddd ext ddd - with three digit optional extension marked by "?". Anything following question mark will be treated as optional and when user provides first 10 digits entry wil be accepted</span>	<input id="phone3" type="text" /></label>
+		
+		<code>$("#phone3").maskFields("(dd) dddd-dddd ?ext ddd");</code>
+	
+	</div>
+	
+	
+	
+	<div>
+	
+		<label><span>Time hh:mm:ss</span>	<input id="time1" type="text" /></label>
+		
+		<code>$("#time1").maskFields("dd:dd:dd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Time hh:mm:ss - with optional seconds</span>	<input id="time2" type="text" /></label>
+		
+		<code>$("#time2").maskFields("dd:dd?:dd");</code>
+	
+	</div>
+	
+	
+	<div>
+	
+		<label><span>Time hh:mm:ss am/pm - time field with only 0, 1, and 2 allowed as a first hour digit and number of minutes is limited from 0 to 59. User also has to provide "am" or "pm" at the end and no other characters will be accepted</span>	<input id="time4" type="text" /></label>
+		
+		<code>$("#time4").maskFields("hd:ed?:ed lm",{"specialChars" : { "h" : "[012]","e" : "[0-5]","l" : "[ap]","m" : "m" }});</code>
+	
+	</div>
+	
+	
+	
+	<div>
+	
+		<label><span>Hex color value #hhhhhh - hex color value, accepts hexadecimal values so 0-f</span>	<input id="hex1" type="hex1" /></label>
+		
+		<code>$("#hex1").maskFields("#dddddd");</code>
+	
+	</div>
+	
+	
+	
+	<div>
+	
+		<label><span>Hex color value #hhhhhh - hex color value, accepts hexadecimal values so 0-f. Only 3 first characters are required, 3 last are made optional. This is to allow both color values e.g. 3 chars only such as #00f for blue as well as full #0000ff etc.</span>	<input id="hex2" type="text" /></label>
+		
+		<code>$("#hex2").maskFields("#hhh?hhh",{"specialChars" : { "h" : "[0-9a-f]" }});</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Dollar amount $dd.dd</span>	<input id="money1" type="text" /></label>
+		
+		<code>$("#money1").maskFields("$dd.dd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Dollar amount $dd.dd - cents are made optional</span>	<input id="money2" type="text" /></label>
+		
+		<code>$("#money2").maskFields("$dd?.dd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Dollar amount $dd.dd - cents are made optional. It will limit entries only to anything from $20-$39 with cent value 95 or 99 only</span>	<input id="money3" type="text" /></label>
+		
+		<code>$("#money3").maskFields("$vd?.9c",{"specialChars" : { "v" : "[23]","c" : "[59]" }});</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Credit Card dddd dddd dddd dddd</span>	<input id="cc1" type="text" /></label>
+		
+		<code>$("#cc1").maskFields("dddd dddd dddd dddd");</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>Credit Card dddd dddd dddd dddd ddd - with optional 3 digits required by some credit card providers. Notice escape character used "^" in front of "a" in word "optional". If not used a would be treated as placeholder for any a-z character</span>	<input id="cc2" type="text" /></label>
+		
+		<code>$("#cc2").maskFields("dddd dddd dddd dddd ?(option^al) ddd");</code>
+	
+	</div>
+	
+	
+	<div>
+	
+		<label><span>"Enter day dd, month dd, year dddd" - as the words "day" and "year" inside of the pattern contain "d" and "a" - characters that MaskIt by default treats as editeable and makes these into placeholder, we need to escape these with "^"</span>	<input id="sep2" type="text" /></label>
+		
+		<code>$("#sep2").maskFields("Enter ^d^ay dd, month dd, ye^ar dddd");</code>
+	
+	
+		<label style="clear: left;"><span>Just for comparison with above example, if pattern used without "^" escape character in it,, all occurences of "d" and "a" will be made by plugin into editeable</span>	<input id="sep3" type="text" /></label>
+		
+		<code>$("#sep3").maskFields("Enter day dd, month dd, year dddd");</code>
+	
+	</div>
+	
+	
+	<div>
+	
+		<label><span>"Enter day dd, month dd, year dddd" - Mixing up a bit, now with optional year</span>	<input id="sep4" type="text" /></label>
+		
+		<code>$("#sep4").maskFields("Enter ^d^ay dd, month dd?, ye^ar dddd");</code>
+	
+	</div>
+	
+	
+	
+	<div>
+	
+		<label><span>Date dd\dd\dd - with double "\" by default will be displayed as "__\__\__". Shows that "\\" is displayed as single "\". This is due to the way how JavaScript treats "\" character and something to watch out for if you wanna use backslash "\" in your patterns</span>	<input id="sep1" type="text" /></label>
+		
+		<code>$("#sep1").maskFields("dd\\dd\\dd");</code>
+	
+	</div>
+	
+	
+	<div>
+	
+		<label><span>And finally field can be made totally optional by placing "?" as the very first character. Field below acepts first 3 as digits, then 3 letters and last 3 as letters or digits</span>	<input id="sep5" type="text" /></label>
+		
+		<code>$("#sep5").maskFields("?ddd aaa *^**");</code>
+	
+	</div>
+	
+				
+				
+	<div>
+	
+		<label><span>MaskIt plugin allows connecting callback when field is completed sucessfuly. Callback will receive event object and HTML object itselfshown in example below as "e" and "t"</span>	<input id="callback1" type="text" /></label>
+		
+		<code>$("#callback1").maskFields("dd/dd/20dd", {"onCompleted": function(e,t) { alert("e.keyCode:"+e.keyCode+"   Entered: "+$(t).val()); }});</code>
+	
+	</div>
+	
+	<div>
+	
+		<label><span>MaskIt also allows callback on keyDown event. Callback will receive event object and HTML object itself shown in example below as "e" and "t". To cancel event and stop character from being entered callback should return false. Example below also has special character specified and so the very first digit has to be either "0" or "1"</span>	<input id="callback2" type="text" /></label>
+		
+		<code>$("#callback2").maskFields("bd/dd/20dd", {"specialChars" : { "b" : "[01]" }, "onKeyDown": function(e,t) { return false; }});</code>
+	
+	</div>
+	
+	
+	
+	<!--
+	<div>
+	
+		<label><span>MaskIt plugin can even be used for passages of text where bits and pieces have to be filled in. Its a good idea to make it all optional with "?" at the beginning so the content wont be lost if something is missed. Also all default special characters so "a", "d" and "*" have to be escaped.</span>	
+		
+		<textarea id="ta" type="text"></textarea></label>
+		
+		<code>$("#ta").maskFields("?De^ar aaaaaaaa,\n\nMy n^ame is aaaaaaaa ^an^d I'm dd ye^ars ol^d. Ple^ase cont^act me ^at ^anytime th^at is convenient to you.\n\nBest Reg^ar^ds,\naaaaaaaaaa");</code>
+	
+	</div>
+	-->
+	
+	</body>
+</html>
