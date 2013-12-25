@@ -25,3 +25,7 @@ When specifying special characters MaskIt uses regular expressions (regex., see 
 * `[abc]` - matches any of these characters: abc
 * `[a-cA-Z]` - matches any of these characters: abc and ABCDE....Z all the way till Z (uppercase)
 * `[1-5o-s]` - matches any of these characters: 12345 as well as matches lowercase opqrs
+
+## Examples
+
+Take a look on [index.html](/index.html) file with live demo and examples
